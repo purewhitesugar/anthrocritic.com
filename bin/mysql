@@ -1,0 +1,23 @@
+#!/bin/bash
+
+docker service rm mysql
+docker service create \
+  --replicas 1 \
+  --name mysql \
+  --env MYSQL_ROOT_PASSWORD=password \
+  --env MYSQL_DATABASE=wordpress \
+  --mount type=volume,source=mysql,destination=/var/lib/mysql \
+  --mount type=bind,source=/docker/mysql/etc/mysql/conf.d,destination=/etc/mysql/conf.d \
+  --publish 3306 \
+    mysql:5.7
+
+docker rm -f mysql
+docker run \
+  -itd \
+  --name mysql \
+  --env MYSQL_ROOT_PASSWORD=password \
+  --env MYSQL_DATABASE=wordpress \
+  --volume /docker/mysql/var/lib/mysql:/var/lib/mysql \
+  --volume /docker/mysql/etc/mysql/conf.d:/etc/mysql/conf.d \
+  --publish 3306:3306 \
+    mysql:5.7

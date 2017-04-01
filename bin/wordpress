@@ -1,0 +1,25 @@
+#!/bin/bash
+
+docker service rm wordpress
+docker service create \
+  --replicas 2 \
+  --name wordpress \
+  -e WORDPRESS_DB_HOST=mysql \
+  -e WORDPRESS_DB_PASSWORD=password \
+  -e WORDPRESS_DB_NAME=wordpress \
+  --mount type=bind,source=/docker/wordpress,destination=/var/lib/mysql \
+    wordpress
+
+docker rm -f wordpress
+docker run \
+  -itd \
+  --name wordpress \
+  -e WORDPRESS_DB_HOST=mysql \
+  -e WORDPRESS_DB_PASSWORD=password \
+  -e WORDPRESS_DB_NAME=wordpress \
+  --volume /docker/wordpress/var/www/html:/var/www/html \
+  --link mysql \
+  --publish 80:80 \
+    wordpress:4.7.3
+
+docker service create  --name nginx --constraint  nginx:latest
